@@ -1,8 +1,12 @@
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 import sys
 from io import StringIO
 import contextlib
+
 app = Flask(__name__)
+cors = CORS(app, resources={r"/*": {"origins": "*"}})
+
 
 def execute_code(code):
     @contextlib.contextmanager
@@ -50,6 +54,7 @@ def tester():
         program_parsed += "    " + i + "\n"
     program = "def main(inputs):\n" + program_parsed + "    return outputs\nprint(main(inputs="+ str(inputs) +"))" 
     var = execute_code(program)
+    print(var[:-1] == str(solutions))
     return jsonify({'result': var[:-1], 'equal':var[:-1] == str(solutions)})
 
 
