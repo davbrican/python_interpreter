@@ -1,11 +1,13 @@
 from flask import Flask, jsonify, request
+from flask import Response
 from flask_cors import CORS
 import sys
 from io import StringIO
 import contextlib
 
 app = Flask(__name__)
-cors = CORS(app, resources={r"/*": {"origins": "*"}})
+cors = CORS(app, resources={r"/tester": {"origins": "*"}})
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 
 def execute_code(code):
