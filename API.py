@@ -4,6 +4,7 @@ from flask_cors import CORS
 import sys
 from io import StringIO
 import contextlib
+import traceback
 
 app = Flask(__name__)
 cors = CORS(app, resources={r"/tester": {"origins": "*"}})
@@ -23,8 +24,12 @@ def execute_code(code):
     with stdoutIO() as s:
         try:
             exec(code)
-        except:
-            print("Something wrong with the code")
+        except Exception as err:
+            error_class = err.__class__.__name__
+            detail = err.args[0]
+            cl, exc, tb = sys.exc_info()
+            line_number = traceback.extract_tb(tb)[-1][1]
+            print(detail + " in line " + str(line_number))
     #print(code)
     return s.getvalue()
 
@@ -46,7 +51,6 @@ def tester():
 	"solutions": [0,1,2,3],
 	"code": "ls = inputs\n    output = []\n    for i in ls:\n        output.append(i)"
     }
-
     """
     code = request.json['code']
 
@@ -62,3 +66,84 @@ def tester():
 
 if __name__ == '__main__':
     app.run(debug=True, port=8000)
+
+
+
+
+'''
+code = "inputs = [0,1,2,3]\nls = inputs\noutput = []\nfor i in ls:\n    output.append(i)\nprint(output)"
+codeObejct = compile(code, 'sumstring', 'exec')
+
+exec(codeObejct)
+
+
+Por cada input:
+
+	---------CODE ---------
+	var input = "aaddd"
+
+	print("___ITERATION<"+input+">")
+
+	func X(x){
+		var output;
+		CODIGO output <-- XXX
+		print(PEPITO)
+		
+		return output
+	}
+
+	print("___SOLUTION<"+X(input)+">")
+	--------------------   
+
+	try
+		compiled_code = compile(CODE)
+	execpt
+		syntax error
+			....
+
+	return_exec = exec(compiled_code)
+
+	if(return_exec == output)
+		ok
+	else
+		NOK
+		
+
+
+calcular si x es un palindromo
+
+___ITERATION<asdasd>
+PEPITO
+___SOLUTION<true>
+
+___ITERATION<asdasd>
+PEPITO
+___SOLUTION<false>
+
+
+
+{
+	result:"correct"
+	console:
+	"
+	--- Test 1(input = "asdasd") ---
+		PEPITO
+	--------------------------------
+	--- Test 2(input = "asdfdd") ---
+		PEPITO
+	--------------------------------
+	--- Test 1(input = "asdasd") ---
+		PEPITO
+	--------------------------------
+	---- Test 2 ---
+		PEPITO
+	---------------
+	...
+
+	" 
+
+
+}
+
+
+'''
