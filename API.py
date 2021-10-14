@@ -14,9 +14,13 @@ cors = CORS(app, resources={r"/tester": {"origins": "*"}})
 app.config['CORS_HEADERS'] = 'Content-Type'
 
 
-def execute_code(code, inputs, solutions):
-    res = []
+def execute_code(code, inputs):
+    res = ""
+    res_list = []
+    te = 1
     for i in inputs:
+        if te != 1: res += "\n"
+        res += "---TEST " + str(te) + " (input = " + str(i) + ")---"
         aux = {}
         try:
             codeObejct = compile("input = " + str(i) + "\n" + code, 'sumstring', 'exec')
@@ -25,27 +29,29 @@ def execute_code(code, inputs, solutions):
             exec(codeObejct, globals(), loc)
             return_workaround = loc['output']
             to_print = loc['to_print']
-            aux["prints"] = to_print
+            for printer in to_print:
+                res += "\n> " + str(printer)
             
-            aux["valueReturned"] =  return_workaround
+            res +=  "\nYOUR SOLUTION: " + str(return_workaround)
+            res_list.append(return_workaround)
         
         except SyntaxError as err:
             error_class = err.__class__.__name__
             detail = err.args[0]
             line_number = err.lineno
-            aux["valueReturned"] = "%s at line %d of %s: %s" % (error_class, line_number, "source string", detail)
+            res += "\nERROR:\n%s at line %d of %s: %s" % (error_class, line_number-2, "source string", detail)
             break
         except Exception as err:
             error_class = err.__class__.__name__
             detail = err.args[0]
             cl, exc, tb = sys.exc_info()
             line_number = traceback.extract_tb(tb)[-1][1]
-            aux["valueReturned"] = "%s at line %d of %s: %s" % (error_class, line_number, "source string", detail)
+            res += "\nERROR:\n%s at line %d of %s: %s" % (error_class, line_number-2, "source string", detail)
             break
-
-        res.append(aux)
-
-    return res
+        
+        te += 1
+    
+    return (res, res_list)
 
 #Testing Route
 @app.route('/', methods=['GET'])
@@ -69,13 +75,12 @@ def tester():
     }
     """
 
-    var = execute_code("to_print = []\n" + code.replace("print", "to_print.append"), inputs, solutions)
+    var = execute_code("to_print = []\n" + code.replace("print", "to_print.append"), inputs)
     
     equal = True
-    for i in range(len(var)):
-        if var[i]["valueReturned"] != solutions[i]:
-            equal = False
-    return jsonify({'result': var, 'equal':equal})
+    if var[1] != solutions:
+        equal = False
+    return jsonify({'console': var[0], 'result':equal})
 
 
 if __name__ == '__main__':
