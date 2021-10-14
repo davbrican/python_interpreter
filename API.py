@@ -80,7 +80,7 @@ def tester():
     equal = True
     if var[1] != solutions:
         equal = False
-    return jsonify({'console': var[0], 'result':equal})
+    return jsonify({'console': var[0], 'result':equal, 'solution': var[1]})
 
 
 if __name__ == '__main__':
