@@ -23,7 +23,11 @@ def execute_code(code, inputs):
         res += "---TEST " + str(te) + " (input = " + str(i) + ")---"
         aux = {}
         try:
+            if type(i) is str:
+                i = "'" + str(i) + "'" 
             codeObejct = compile("input = " + str(i) + "\n" + code, 'sumstring', 'exec')
+            
+            print("input = " + str(i) + "\n" + code)
             
             loc = {}
             exec(codeObejct, globals(), loc)
